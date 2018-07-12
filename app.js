@@ -7,7 +7,7 @@ let dt = 1.0/fps;
 let conDist = 180;// Minimum distance for the connection between particles to be shown
 
 class Particles {
-  constructor(n) {
+  constructor(n, attract) {
     this.particles = [];
     this.canvas = document.getElementById('canvas');
     this.canvas.width = this.width = document.documentElement.clientWidth;
@@ -15,6 +15,7 @@ class Particles {
     this.c = this.canvas.getContext('2d');
     this.c.strokeWeight = 2;
     this.hue = 0;
+    this.attract = attract;
     this.createParticles(n);
   }
 
@@ -54,16 +55,27 @@ class Particles {
         }
       }
 
+      if (this.attract) {
+        for (let k = 0; k < this.particles.length; k++) {
+          if (k == i) continue;
+          let d = V.add(this.particles[i].pos.oposite, this.particles[k].pos);
+          let dabs = 1.0/d.abs();
+          this.particles[i].vel.add(V.scale(d, 50*dabs*dabs));
+        }
+      }
+
     }
 
     this.hue = (this.hue + .2) % 360;
   }
 
-
 }
 
 if (window.particles && window.particles.interval) clearInterval(window.particles.interval);
-
-window.particles = new Particles(60);
-
+window.particles = new Particles(60, false);
 window.particles.interval = setInterval(window.particles.loop.bind(window.particles), dt*1000);
+
+document.addEventListener('keyup', e => {
+  if (e.keyCode == 13) // enter
+    window.particles.attract = !window.particles.attract; 
+})

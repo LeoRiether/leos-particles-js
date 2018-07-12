@@ -4,16 +4,17 @@ class V {
     this.y = y;
   }
 
-  toInt() {
-    this.x = ~~x;
-    this.y = ~~y;
-  }
-
   add(v) {
     this.x += v.x;
     this.y += v.y;
     return this;
   }
+
+  abs() {
+    return Math.sqrt(this.x*this.x + this.y*this.y);
+  }
+
+  get oposite() { return new V(-this.x, -this.y); }
 
   static add(a, b) {
     return new V(a.x+b.x, a.y+b.y);

@@ -123,17 +123,21 @@ var V = function () {
   }
 
   _createClass(V, [{
-    key: "toInt",
-    value: function toInt() {
-      this.x = ~~x;
-      this.y = ~~y;
-    }
-  }, {
     key: "add",
     value: function add(v) {
       this.x += v.x;
       this.y += v.y;
       return this;
+    }
+  }, {
+    key: "abs",
+    value: function abs() {
+      return Math.sqrt(this.x * this.x + this.y * this.y);
+    }
+  }, {
+    key: "oposite",
+    get: function get() {
+      return new V(-this.x, -this.y);
     }
   }], [{
     key: "add",
@@ -280,7 +284,7 @@ var dt = 1.0 / fps;
 var conDist = 180; // Minimum distance for the connection between particles to be shown
 
 var Particles = function () {
-  function Particles(n) {
+  function Particles(n, attract) {
     _classCallCheck(this, Particles);
 
     this.particles = [];
@@ -290,6 +294,7 @@ var Particles = function () {
     this.c = this.canvas.getContext('2d');
     this.c.strokeWeight = 2;
     this.hue = 0;
+    this.attract = attract;
     this.createParticles(n);
   }
 
@@ -331,6 +336,15 @@ var Particles = function () {
             this.c.closePath();
           }
         }
+
+        if (this.attract) {
+          for (var k = 0; k < this.particles.length; k++) {
+            if (k == i) continue;
+            var _d = _vector2.default.add(this.particles[i].pos.oposite, this.particles[k].pos);
+            var dabs = 1.0 / _d.abs();
+            this.particles[i].vel.add(_vector2.default.scale(_d, 50 * dabs * dabs));
+          }
+        }
       }
 
       this.hue = (this.hue + .2) % 360;
@@ -341,10 +355,13 @@ var Particles = function () {
 }();
 
 if (window.particles && window.particles.interval) clearInterval(window.particles.interval);
-
-window.particles = new Particles(60);
-
+window.particles = new Particles(60, false);
 window.particles.interval = setInterval(window.particles.loop.bind(window.particles), dt * 1000);
+
+document.addEventListener('keyup', function (e) {
+  if (e.keyCode == 13) // enter
+    window.particles.attract = !window.particles.attract;
+});
 },{"./vector.js":"vector.js","./particle.js":"particle.js","./helper.js":"helper.js"}],"..\\..\\AppData\\Roaming\\npm\\node_modules\\parcel-bundler\\src\\builtins\\hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -374,7 +391,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = '' || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + '31199' + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + '43979' + '/');
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
 
